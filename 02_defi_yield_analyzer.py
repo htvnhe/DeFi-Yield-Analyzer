@@ -11,14 +11,14 @@ class DeFiYieldAnalyzer(gl.Contract):
     best_protocol: str
     best_apy: str
     risk_level: str
-    scan_url: str
+    param: str
 
-    def __init__(self, scan_url: str):
+    def __init__(self, param: str):
         self.has_scanned = False
         self.best_protocol = "unknown"
         self.best_apy = "0"
         self.risk_level = "MEDIUM"
-        self.scan_url = scan_url
+        self.param = param
 
     @gl.public.write
     def analyze_yields(self) -> typing.Any:
@@ -27,12 +27,12 @@ class DeFiYieldAnalyzer(gl.Contract):
             return "Already scanned"
 
         def nondet() -> str:
-            response = gl.nondet.web.render(self.scan_url, mode="text")
-            print(response)
+            fng = gl.nondet.web.render("https://alternative.me/crypto/fear-and-greed-index/", mode="text")
+            print(fng)
 
-            task = f"""You are a DeFi yield analyst.
-            Analyze the following DeFi data to find the best yield opportunities:
-            {response[:2000]}
+            task = f"""You are a DeFi yield analyst. Based on the current market sentiment data, recommend the best DeFi yield opportunity.
+            Here is current crypto market data:
+            {fng[:1500]}
 
             Respond with the following JSON format:
             {{
@@ -41,10 +41,10 @@ class DeFiYieldAnalyzer(gl.Contract):
                 "risk_level": str,
                 "summary": str
             }}
-            best_protocol: name of the protocol with best risk-adjusted yield.
-            best_apy: the APY percentage as a string number.
+            best_protocol: name of the best DeFi protocol for yield right now.
+            best_apy: estimated APY as string number.
             risk_level: one of LOW, MEDIUM, HIGH, EXTREME.
-            summary: one sentence about current DeFi yield landscape.
+            summary: one sentence about DeFi yield landscape.
             It is mandatory that you respond only using the JSON format above,
             nothing else. Don't include any other words or characters,
             your output must be only JSON without any formatting prefix or suffix.
